@@ -9,6 +9,7 @@ from collections import defaultdict
 from options import *
 from model.iga import IGA
 from average_meter import AverageMeter
+from tqdm import tqdm
 
 
 def train(model: IGA,
@@ -40,7 +41,7 @@ def train(model: IGA,
     images_to_save = 8
     saved_images_size = (512, 512)
 
-    for epoch in range(train_options.start_epoch, train_options.number_of_epochs + 1):
+    for epoch in tqdm(range(train_options.start_epoch, train_options.number_of_epochs + 1)):
         logging.info('\nStarting epoch {}/{}'.format(epoch, train_options.number_of_epochs))
         logging.info('Batch size = {}\nSteps in epoch = {}'.format(train_options.batch_size, steps_in_epoch))
         training_losses = defaultdict(AverageMeter)
