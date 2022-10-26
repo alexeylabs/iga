@@ -11,7 +11,7 @@ class ConvBNRelu(nn.Module):
         self.layers = nn.Sequential(
             nn.Conv2d(channels_in, channels_out, 3, stride, padding=1),
             nn.BatchNorm2d(channels_out),
-            nn.ReLU(inplace=False)
+            nn.ReLU(inplace=True)
         )
 
     def forward(self, x):
