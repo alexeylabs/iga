@@ -5,6 +5,7 @@ from noise_layers.crop import Crop
 from noise_layers.identity import Identity
 from noise_layers.dropout import Dropout
 from noise_layers.resize import Resize
+from noise_layers.rotate import Rotate
 from noise_layers.quantization import Quantization
 from noise_layers.jpeg_compression import JpegCompression
 
@@ -44,6 +45,13 @@ def parse_resize(resize_command):
     max_ratio = float(ratios[1])
     return Resize((min_ratio, max_ratio))
 
+
+def parse_rotate(resize_command):
+    matches = re.match(r'rotate\((-?\d+\,\d+)\)', resize_command)
+    ratios = matches.groups()[0].split(',')
+    min_angle = int(ratios[0])
+    max_angle = int(ratios[1])
+    return Rotate((min_angle, max_angle))
 
 class NoiseArgParser(argparse.Action):
     def __init__(self,
@@ -95,6 +103,8 @@ class NoiseArgParser(argparse.Action):
                 layers.append(parse_dropout(command))
             elif command[:len('resize')] == 'resize':
                 layers.append(parse_resize(command))
+            elif command[:len('rotate')] == 'rotate':
+                layers.append(parse_rotate(command))
             elif command[:len('jpeg')] == 'jpeg':
                 layers.append('JpegPlaceholder')
             elif command[:len('quant')] == 'quant':
