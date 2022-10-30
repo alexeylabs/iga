@@ -14,7 +14,7 @@ from average_meter import AverageMeter
 from noise_argparser import NoiseArgParser
 from tqdm import tqdm
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def write_validation_loss(file_name, losses_accu, experiment_name, epoch, write_header=False):
