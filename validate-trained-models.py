@@ -29,7 +29,7 @@ def write_validation_loss(file_name, losses_accu, experiment_name, epoch, write_
 
 def main():
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    # device = torch.device('cpu')
+    print('Device:', device)
 
     parser = argparse.ArgumentParser(description='Training of IGA nets')
     # parser.add_argument('--size', '-s', default=128, type=int, help='The size of the images (images are square so this is height and width).')
@@ -68,7 +68,7 @@ def main():
         checkpoint, chpt_file_name = utils.load_last_checkpoint(os.path.join(current_run, 'checkpoints'), device)
         print(f'Loaded checkpoint from file {chpt_file_name}')
 
-        noiser = Noiser(noise_config, device)
+        noiser = Noiser(noise_config, device, train_mode=False)
         model = IGA(iga_config, device, noiser, tb_logger=None)
         utils.model_from_checkpoint(model, checkpoint)
 

@@ -10,9 +10,13 @@ class Noiser(nn.Module):
     This module allows to combine different noise layers into a sequential noise module. The
     configuration and the sequence of the noise layers is controlled by the noise_config parameter.
     """
-    def __init__(self, noise_layers: list, device):
+    def __init__(self, noise_layers: list, device, train_mode=True):
         super(Noiser, self).__init__()
-        self.noise_layers = [Identity()]
+        if self.train_mode:
+            self.noise_layers = [Identity()]
+        else:
+            self.noise_layers = []
+        self.train_mode = train_mode
         for layer in noise_layers:
             if type(layer) is str:
                 if layer == 'JpegPlaceholder':
@@ -25,6 +29,7 @@ class Noiser(nn.Module):
             else:
                 self.noise_layers.append(layer)
         # self.noise_layers = nn.Sequential(*noise_layers)
+        print('Noise layers:', noise_layers)
 
     def forward(self, encoded_and_cover):
         random_noise_layer = np.random.choice(self.noise_layers, 1)[0]
