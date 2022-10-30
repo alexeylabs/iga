@@ -91,10 +91,10 @@ def save_checkpoint(model: IGA, experiment_name: str, epoch: int, checkpoint_fol
 
 
 # def load_checkpoint(iga_net: IGA, options: Options, this_run_folder: str):
-def load_last_checkpoint(checkpoint_folder):
+def load_last_checkpoint(checkpoint_folder, device):
     """ Load the last checkpoint from the given folder """
     last_checkpoint_file = last_checkpoint_from_folder(checkpoint_folder)
-    checkpoint = torch.load(last_checkpoint_file)
+    checkpoint = torch.load(last_checkpoint_file, map_location=device)
 
     return checkpoint, last_checkpoint_file
 

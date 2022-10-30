@@ -12,6 +12,7 @@ from model.iga import IGA
 from noise_layers.noiser import Noiser
 from average_meter import AverageMeter
 from noise_argparser import NoiseArgParser
+from tqdm import tqdm
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
@@ -34,14 +35,14 @@ def main():
     # parser.add_argument('--size', '-s', default=128, type=int, help='The size of the images (images are square so this is height and width).')
     parser.add_argument('--data-dir', '-d', required=True, type=str, help='The directory where the data is stored.')
     parser.add_argument('--tested-run-dir', '-t', default=None, type=str, help='The directory for tested run.')
-    parser.add_argument('--runs_root', '-r', default=os.path.join('.', 'experiments'), type=str,
+    parser.add_argument('--runs_root', '-r', default=os.path.join('.', 'runs'), type=str,
                         help='The root folder where data about experiments are stored.')
     parser.add_argument('--batch-size', '-b', default=1, type=int, help='Validation batch size.')
     parser.add_argument('--noise', nargs='*', action=NoiseArgParser,
                                 help="Noise layers configuration. Use quotes when specifying configuration, e.g. 'cropout((0.55, 0.6), (0.55, 0.6))'")
 
     args = parser.parse_args()
-    print_each = 25
+    print_each = 500
 
     if args.tested_run_dir is None:
         completed_runs = [o for o in os.listdir(args.runs_root)
@@ -64,7 +65,7 @@ def main():
         train_options.train_folder = os.path.join(args.data_dir, 'val')
         train_options.validation_folder = os.path.join(args.data_dir, 'val')
         train_options.batch_size = args.batch_size
-        checkpoint, chpt_file_name = utils.load_last_checkpoint(os.path.join(current_run, 'checkpoints'))
+        checkpoint, chpt_file_name = utils.load_last_checkpoint(os.path.join(current_run, 'checkpoints'), device)
         print(f'Loaded checkpoint from file {chpt_file_name}')
 
         noiser = Noiser(noise_config, device)
@@ -81,7 +82,7 @@ def main():
 
         losses_accu = {}
         step = 0
-        for image, _ in val_data:
+        for image, _ in tqdm(val_data):
             step += 1
             image = image.to(device)
             message = torch.Tensor(np.random.choice([0, 1], (image.shape[0], iga_config.message_length))).to(device)
