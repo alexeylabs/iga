@@ -25,6 +25,7 @@ def parse_crop(crop_command):
     (hmin, hmax), (wmin, wmax) = parse_pair(matches.groups())
     return Crop((hmin, hmax), (wmin, wmax))
 
+
 def parse_cropout(cropout_command):
     matches = re.match(r'cropout\(\((\d+\.*\d*,\d+\.*\d*)\),\((\d+\.*\d*,\d+\.*\d*)\)\)', cropout_command)
     (hmin, hmax), (wmin, wmax) = parse_pair(matches.groups())
@@ -37,6 +38,7 @@ def parse_dropout(dropout_command):
     keep_min = float(ratios[0])
     keep_max = float(ratios[1])
     return Dropout((keep_min, keep_max))
+
 
 def parse_resize(resize_command):
     matches = re.match(r'resize\((\d+\.*\d*,\d+\.*\d*)\)', resize_command)
@@ -107,6 +109,8 @@ class NoiseArgParser(argparse.Action):
                 layers.append(parse_rotate(command))
             elif command[:len('jpeg')] == 'jpeg':
                 layers.append('JpegPlaceholder')
+            elif command[:len('flip')] == 'flip':
+                layers.append('Flip')
             elif command[:len('quant')] == 'quant':
                 layers.append('QuantizationPlaceholder')
             elif command[:len('identity')] == 'identity':

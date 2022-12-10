@@ -3,6 +3,7 @@ import torch.nn as nn
 from noise_layers.identity import Identity
 from noise_layers.jpeg_compression import JpegCompression
 from noise_layers.quantization import Quantization
+from noise_layers.flip import Flip
 
 
 class Noiser(nn.Module):
@@ -20,6 +21,8 @@ class Noiser(nn.Module):
             if type(layer) is str:
                 if layer == 'JpegPlaceholder':
                     self.noise_layers.append(JpegCompression(device))
+                elif layer == 'Flip':
+                    self.noise_layers.append(Flip())
                 elif layer == 'QuantizationPlaceholder':
                     self.noise_layers.append(Quantization(device))
                 else:
