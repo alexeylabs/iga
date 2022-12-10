@@ -11,6 +11,8 @@ from vgg_loss import VGGLoss
 from noise_layers.noiser import Noiser
 import utils
 
+from torchmetrics.functional import peak_signal_noise_ratio
+
 
 class IGA:
     def __init__(self, configuration: IGAConfiguration, device: torch.device, noiser: Noiser, tb_logger):
@@ -158,6 +160,8 @@ class IGA:
         bitwise_avg_err = np.sum(np.abs(decoded_rounded - messages.detach().cpu().numpy())) / (
                 batch_size * messages.shape[1])
 
+        psnr = peak_signal_noise_ratio(images.detach(), encoded_images.detach())
+
         losses = {
             'loss           ': g_loss.item(),
             'encoder_mse    ': g_loss_enc.item(),
@@ -166,7 +170,8 @@ class IGA:
             'adversarial_bce': g_loss_adv.item(),
             'discr_cover_bce': d_loss_on_cover.item(),
             'discr_encod_bce': d_loss_on_encoded.item(),
-            'msg_reduce_mse': g_loss_dec_msg.item()
+            'msg_reduce_mse ': g_loss_dec_msg.item(),
+            'psnr           ': psnr.item(),
         }
         return losses, (encoded_images, noised_images, decoded_messages)
 
@@ -255,6 +260,8 @@ class IGA:
         bitwise_avg_err = np.sum(np.abs(decoded_rounded - messages.detach().cpu().numpy())) / (
                 batch_size * messages.shape[1])
 
+        psnr = peak_signal_noise_ratio(images, encoded_images)
+
         losses = {
             'loss           ': g_loss.item(),
             'encoder_mse    ': g_loss_enc.item(),
@@ -263,7 +270,8 @@ class IGA:
             'adversarial_bce': g_loss_adv.item(),
             'discr_cover_bce': d_loss_on_cover.item(),
             'discr_encod_bce': d_loss_on_encoded.item(),
-            'msg_reduce_mse': g_loss_dec_msg.item()
+            'msg_reduce_mse ': g_loss_dec_msg.item(),
+            'psnr           ': psnr.item(),
         }
         return losses, (encoded_images, noised_images, decoded_messages)
 
