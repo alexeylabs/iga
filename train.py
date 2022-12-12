@@ -73,25 +73,24 @@ def train(model: IGA,
         first_iteration = True
         validation_losses = defaultdict(AverageMeter)
         logging.info('Running validation for epoch {}/{}'.format(epoch, train_options.number_of_epochs))
-        with torch.no_grad():
-            for image, _ in val_data:
-                image = image.to(device)
-                message = torch.Tensor(np.random.choice([0, 1], (image.shape[0], iga_config.message_length))).to(device)
-                losses, (encoded_images, noised_images, decoded_messages) = model.validate_on_batch([image, message])
-                for name, loss in losses.items():
-                    validation_losses[name].update(loss)
-                if first_iteration:
-                    if iga_config.enable_fp16:
-                        image = image.float()
-                        encoded_images = encoded_images.float()
-                    utils.save_images(image.cpu()[:images_to_save, :, :, :],
-                                      encoded_images[:images_to_save, :, :, :].cpu(),
-                                      epoch,
-                                      os.path.join(this_run_folder, 'images'), resize_to=saved_images_size)
-                    first_iteration = False
+        for image, _ in val_data:
+            image = image.to(device)
+            message = torch.Tensor(np.random.choice([0, 1], (image.shape[0], iga_config.message_length))).to(device)
+            losses, (encoded_images, noised_images, decoded_messages) = model.validate_on_batch([image, message])
+            for name, loss in losses.items():
+                validation_losses[name].update(loss)
+            if first_iteration:
+                if iga_config.enable_fp16:
+                    image = image.float()
+                    encoded_images = encoded_images.float()
+                utils.save_images(image.cpu()[:images_to_save, :, :, :],
+                                  encoded_images[:images_to_save, :, :, :].cpu(),
+                                  epoch,
+                                  os.path.join(this_run_folder, 'images'), resize_to=saved_images_size)
+                first_iteration = False
 
-            utils.log_progress(validation_losses)
-            logging.info('-' * 40)
-            utils.save_checkpoint(model, train_options.experiment_name, epoch, os.path.join(this_run_folder, 'checkpoints'))
-            utils.write_losses(os.path.join(this_run_folder, 'validation.csv'), validation_losses, epoch,
-                               time.time() - epoch_start)
+        utils.log_progress(validation_losses)
+        logging.info('-' * 40)
+        utils.save_checkpoint(model, train_options.experiment_name, epoch, os.path.join(this_run_folder, 'checkpoints'))
+        utils.write_losses(os.path.join(this_run_folder, 'validation.csv'), validation_losses, epoch,
+                           time.time() - epoch_start)
