@@ -84,6 +84,8 @@ def save_checkpoint(model: IGA, experiment_name: str, epoch: int, checkpoint_fol
         'enc-dec-optim': model.optimizer_enc_dec.state_dict(),
         'discrim-model': model.discriminator.state_dict(),
         'discrim-optim': model.optimizer_discrim.state_dict(),
+        'msg_encoder': model.msg_encoder.state_dict(),
+        'msg_decoder': model.msg_decoder.state_dict(),
         'epoch': epoch
     }
     torch.save(checkpoint, checkpoint_filename)
@@ -105,6 +107,8 @@ def model_from_checkpoint(iga_net, checkpoint):
     iga_net.optimizer_enc_dec.load_state_dict(checkpoint['enc-dec-optim'])
     iga_net.discriminator.load_state_dict(checkpoint['discrim-model'])
     iga_net.optimizer_discrim.load_state_dict(checkpoint['discrim-optim'])
+    iga_net.msg_encoder.load_state_dict(checkpoint['msg_encoder'])
+    iga_net.msg_decoder.load_state_dict(checkpoint['msg_decoder'])
 
 
 def load_options(options_file_name) -> (TrainingOptions, IGAConfiguration, dict):

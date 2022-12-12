@@ -54,11 +54,11 @@ def main():
     model = IGA(iga_config, device, noiser, tb_logger=None)
     checkpoint = torch.load(args.model_path, map_location=device)
     utils.model_from_checkpoint(model, checkpoint)
-    augmentations = model.encoder_decoder.noiser.noise_layers
 
     _, val_data = utils.get_data_loaders(iga_config, train_options)
 
     with torch.no_grad():
+        augmentations = model.encoder_decoder.noiser.noise_layers
         for aug in augmentations:
             print(aug)
             model.encoder_decoder.noiser.noise_layers = [aug]
