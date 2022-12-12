@@ -93,7 +93,7 @@ def train(model: IGA,
         utils.log_progress(validation_losses)
         logging.info('-' * 40)
 
-        new_ber = validation_losses['bitwise-error  ']
+        new_ber = validation_losses['bitwise-error  '].avg
         if new_ber < best_ber:
             best_ber = new_ber
             utils.save_checkpoint(model, train_options.experiment_name, epoch, os.path.join(this_run_folder, 'checkpoints'))
