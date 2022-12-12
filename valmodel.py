@@ -62,8 +62,6 @@ def main():
         for aug in augmentations:
             print(aug)
             model.encoder_decoder.noiser.noise_layers = [aug]
-            model.eval()
-
             first_iteration = True
             validation_losses = {}
             for image, _ in tqdm(val_data):
