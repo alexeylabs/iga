@@ -74,7 +74,7 @@ def main():
             for name, loss in losses.items():
                 validation_losses[name].update(loss)
 
-        utils.log_progress(validation_losses)
+        utils.print_progress(validation_losses)
 
 
 if __name__ == '__main__':
