@@ -58,23 +58,24 @@ def main():
 
     _, val_data = utils.get_data_loaders(iga_config, train_options)
 
-    for aug in augmentations:
-        print(aug)
-        model.encoder_decoder.noiser.noise_layers = [aug]
+    with torch.no_grad():
+        for aug in augmentations:
+            print(aug)
+            model.encoder_decoder.noiser.noise_layers = [aug]
 
-        first_iteration = True
-        validation_losses = {}
-        for image, _ in tqdm(val_data):
-            image = image.to(device)
-            message = torch.Tensor(np.random.choice([0, 1], (image.shape[0], iga_config.message_length))).to(device)
-            losses, (encoded_images, noised_images, decoded_messages) = model.validate_on_batch([image, message])
-            if not validation_losses:  # dict is empty, initialize
-                for name in losses:
-                    validation_losses[name] = AverageMeter()
-            for name, loss in losses.items():
-                validation_losses[name].update(loss)
+            first_iteration = True
+            validation_losses = {}
+            for image, _ in tqdm(val_data):
+                image = image.to(device)
+                message = torch.Tensor(np.random.choice([0, 1], (image.shape[0], iga_config.message_length))).to(device)
+                losses, (encoded_images, noised_images, decoded_messages) = model.validate_on_batch([image, message])
+                if not validation_losses:  # dict is empty, initialize
+                    for name in losses:
+                        validation_losses[name] = AverageMeter()
+                for name, loss in losses.items():
+                    validation_losses[name].update(loss)
 
-        utils.print_progress(validation_losses)
+            utils.print_progress(validation_losses)
 
 
 if __name__ == '__main__':
