@@ -40,7 +40,7 @@ def train(model: IGA,
     print_each = 500
     images_to_save = 8
     saved_images_size = (512, 512)
-    best_ber = 0.5
+    # best_ber = 0.5
 
     for epoch in tqdm(range(train_options.start_epoch, train_options.number_of_epochs + 1)):
         logging.info('\nStarting epoch {}/{}'.format(epoch, train_options.number_of_epochs))
@@ -93,10 +93,29 @@ def train(model: IGA,
         utils.log_progress(validation_losses)
         logging.info('-' * 40)
 
-        new_ber = validation_losses['bitwise-error  '].avg
-        if new_ber < best_ber:
-            best_ber = new_ber
-            utils.save_checkpoint(model, train_options.experiment_name, epoch, os.path.join(this_run_folder, 'checkpoints'))
+        # new_ber = validation_losses['bitwise-error  '].avg
+        # if new_ber < best_ber:
+        #     best_ber = new_ber
+        utils.save_checkpoint(model, train_options.experiment_name, epoch, os.path.join(this_run_folder, 'checkpoints'))
 
         utils.write_losses(os.path.join(this_run_folder, 'validation.csv'), validation_losses, epoch,
                            time.time() - epoch_start)
+
+    with torch.no_grad():
+        augmentations = model.encoder_decoder.noiser.noise_layers
+        for aug in augmentations:
+            print(aug)
+            model.encoder_decoder.noiser.noise_layers = [aug]
+            first_iteration = True
+            validation_losses = {}
+            for image, _ in tqdm(val_data):
+                image = image.to(device)
+                message = torch.Tensor(np.random.choice([0, 1], (image.shape[0], iga_config.message_length))).to(device)
+                losses, (encoded_images, noised_images, decoded_messages) = model.validate_on_batch([image, message])
+                if not validation_losses:  # dict is empty, initialize
+                    for name in losses:
+                        validation_losses[name] = AverageMeter()
+                for name, loss in losses.items():
+                    validation_losses[name].update(loss)
+
+            utils.print_progress(validation_losses)
